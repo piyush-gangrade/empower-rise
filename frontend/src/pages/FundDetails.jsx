@@ -68,7 +68,7 @@ export default function FundDetails() {
             <h3>Raised</h3>
             <p>{fund.collectedAmount || 0}</p>
             <div style={{ marginTop: 12 }}>
-              <Button>Donate</Button>
+              <a className="button" href={`/funds/${fund.id}/donate`}>Donate</a>
             </div>
           </div>
         </aside>

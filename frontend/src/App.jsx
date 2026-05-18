@@ -13,6 +13,8 @@ import DashboardComments from './pages/dashboard/DashboardComments.jsx'
 import DashboardSettings from './pages/dashboard/DashboardSettings.jsx'
 import CreateFund from './pages/dashboard/CreateFund.jsx'
 import FundDetails from './pages/FundDetails.jsx'
+import DonatePage from './pages/DonatePage.jsx'
+import DonationSuccess from './pages/DonationSuccess.jsx'
 import UsersPage from './pages/UsersPage.jsx'
 import AdminsPage from './pages/AdminsPage.jsx'
 import BlogsPage from './pages/BlogsPage.jsx'
@@ -46,6 +48,8 @@ function App() {
           <Route path="/blogs" element={<BlogsPage />} />
           <Route path="/funds" element={<FundsPage />} />
           <Route path="/funds/:id" element={<FundDetails />} />
+          <Route path="/funds/:id/donate" element={<DonatePage />} />
+          <Route path="/donation-success" element={<DonationSuccess />} />
           <Route path="/donations" element={<DonationsPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/comments" element={<CommentsPage />} />
