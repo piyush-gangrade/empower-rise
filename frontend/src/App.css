@@ -38,6 +38,36 @@ a {
   padding: 32px 24px 64px;
 }
 
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 24px;
+}
+
+.dashboard-sidebar {
+  background: rgba(15,23,42,0.95);
+  border: 1px solid rgba(148,163,184,0.12);
+  border-radius: 16px;
+  padding: 20px;
+  height: fit-content;
+}
+
+.dashboard-brand {
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 12px;
+}
+
+.dashboard-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dashboard-main {
+  min-height: 60vh;
+}
+
 .top-nav {
   position: sticky;
   top: 0;

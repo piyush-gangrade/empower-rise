@@ -5,7 +5,12 @@ import HomePage from './pages/HomePage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
 import AdminLoginPage from './pages/AdminLoginPage.jsx'
-import DashboardPage from './pages/DashboardPage.jsx'
+import DashboardLayout from './pages/dashboard/DashboardLayout.jsx'
+import DashboardProfile from './pages/dashboard/DashboardProfile.jsx'
+import DashboardFundraisers from './pages/dashboard/DashboardFundraisers.jsx'
+import DashboardDonations from './pages/dashboard/DashboardDonations.jsx'
+import DashboardComments from './pages/dashboard/DashboardComments.jsx'
+import DashboardSettings from './pages/dashboard/DashboardSettings.jsx'
 import UsersPage from './pages/UsersPage.jsx'
 import AdminsPage from './pages/AdminsPage.jsx'
 import BlogsPage from './pages/BlogsPage.jsx'
@@ -24,7 +29,14 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/dashboard/*" element={<DashboardLayout />}>
+            <Route index element={<DashboardProfile />} />
+            <Route path="profile" element={<DashboardProfile />} />
+            <Route path="fundraisers" element={<DashboardFundraisers />} />
+            <Route path="donations" element={<DashboardDonations />} />
+            <Route path="comments" element={<DashboardComments />} />
+            <Route path="settings" element={<DashboardSettings />} />
+          </Route>
           <Route path="/admin-login" element={<AdminLoginPage />} />
           <Route path="/users" element={<UsersPage />} />
           <Route path="/admins" element={<AdminsPage />} />
