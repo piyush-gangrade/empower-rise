@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { Button } from '../components/ui/button.jsx'
+import { useParams, Link } from 'react-router-dom'
 
 export default function FundDetails() {
   const { id } = useParams()
   const [fund, setFund] = useState(null)
   const [comments, setComments] = useState([])
   const [loading, setLoading] = useState(false)
+
+  const [commentText, setCommentText] = useState('')
+  const [editingId, setEditingId] = useState(null)
+  const [editingText, setEditingText] = useState('')
+  const [error, setError] = useState('')
 
   useEffect(() => {
     if (id) fetchFund()
@@ -20,10 +24,12 @@ export default function FundDetails() {
       const data = json?.data || json
       setFund(data)
 
-      const cRes = await fetch(`/api/v1/comment/by-fund/${id}`)
+      const cRes = await fetch(`/api/v1/comment/by-fund/${id}?page=1&limit=100`)
       const cJson = await cRes.json()
       const cData = cJson?.data || cJson
-      setComments(cData?.data || cData || [])
+      // comment service may return nested data
+      const list = cData?.data || cData || []
+      setComments(list)
     } catch (e) {
       console.error(e)
     } finally {
@@ -31,8 +37,93 @@ export default function FundDetails() {
     }
   }
 
+  const getMe = () => {
+    try {
+      return JSON.parse(localStorage.getItem('authUser') || '{}')
+    } catch (e) {
+      return {}
+    }
+  }
+
+  const getToken = () => localStorage.getItem('authToken') || ''
+
+  const handleCreateComment = async (e) => {
+    e.preventDefault()
+    setError('')
+    const me = getMe()
+    if (!me?.id) return setError('Please login to comment')
+    if (!commentText.trim()) return setError('Please enter a comment')
+    try {
+      const fd = new FormData()
+      fd.append('fundId', id)
+      fd.append('text', commentText.trim())
+      fd.append('userId', me.id)
+
+      const res = await fetch('/api/v1/comment/create', {
+        method: 'POST',
+        headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {},
+        body: fd,
+      })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json?.message || 'Failed to post comment')
+      setCommentText('')
+      fetchFund()
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
+  const startEdit = (c) => {
+    setEditingId(c.id)
+    setEditingText(c.text || c.comment || '')
+  }
+
+  const cancelEdit = () => {
+    setEditingId(null)
+    setEditingText('')
+  }
+
+  const handleUpdateComment = async (e) => {
+    e.preventDefault()
+    setError('')
+    if (!editingText.trim()) return setError('Please enter comment text')
+    try {
+      const fd = new FormData()
+      fd.append('text', editingText.trim())
+      const res = await fetch(`/api/v1/comment/update/${editingId}`, {
+        method: 'PATCH',
+        headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {},
+        body: fd,
+      })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json?.message || 'Failed to update comment')
+      cancelEdit()
+      fetchFund()
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
+  const handleDeleteComment = async (commentId) => {
+    setError('')
+    if (!confirm('Delete this comment?')) return
+    try {
+      const res = await fetch(`/api/v1/comment/delete/${commentId}`, {
+        method: 'POST',
+        headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {},
+      })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json?.message || 'Failed to delete comment')
+      fetchFund()
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
   if (loading) return <div>Loading...</div>
   if (!fund) return <div>Fund not found</div>
+
+  const me = getMe()
 
   return (
     <div>
@@ -52,10 +143,38 @@ export default function FundDetails() {
           <p>{fund.user?.username || fund.user?.name}</p>
 
           <h3>Comments</h3>
+          <div style={{ marginBottom: 12 }}>
+            {error && <div className="alert alert-error">{error}</div>}
+            <form onSubmit={handleCreateComment} className="space-y-2">
+              <textarea
+                placeholder="Add encouragement, question or update..."
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                rows={3}
+                className="input"
+              />
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <button className="button" type="submit">Comment</button>
+                {!me?.id && <Link to="/login">Sign in to comment</Link>}
+              </div>
+            </form>
+          </div>
+
           {comments.length === 0 ? <p>No comments yet.</p> : (
-            <ul>
+            <ul style={{ listStyle: 'none', padding: 0 }}>
               {comments.map((c) => (
-                <li key={c.id}>{c.comment}</li>
+                <Comment
+                  key={c.id}
+                  comment={c}
+                  me={me}
+                  editingId={editingId}
+                  editingText={editingText}
+                  setEditingText={setEditingText}
+                  startEdit={startEdit}
+                  cancelEdit={cancelEdit}
+                  onSave={handleUpdateComment}
+                  onDelete={handleDeleteComment}
+                />
               ))}
             </ul>
           )}
@@ -68,7 +187,7 @@ export default function FundDetails() {
             <h3>Raised</h3>
             <p>{fund.collectedAmount || 0}</p>
             <div style={{ marginTop: 12 }}>
-              <a className="button" href={`/funds/${fund.id}/donate`}>Donate</a>
+              <Link className="button" to={`/funds/${fund.id}/donate`}>Donate</Link>
             </div>
           </div>
         </aside>
