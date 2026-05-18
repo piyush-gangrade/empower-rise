@@ -11,6 +11,8 @@ import DashboardFundraisers from './pages/dashboard/DashboardFundraisers.jsx'
 import DashboardDonations from './pages/dashboard/DashboardDonations.jsx'
 import DashboardComments from './pages/dashboard/DashboardComments.jsx'
 import DashboardSettings from './pages/dashboard/DashboardSettings.jsx'
+import CreateFund from './pages/dashboard/CreateFund.jsx'
+import FundDetails from './pages/FundDetails.jsx'
 import UsersPage from './pages/UsersPage.jsx'
 import AdminsPage from './pages/AdminsPage.jsx'
 import BlogsPage from './pages/BlogsPage.jsx'
@@ -33,6 +35,7 @@ function App() {
             <Route index element={<DashboardProfile />} />
             <Route path="profile" element={<DashboardProfile />} />
             <Route path="fundraisers" element={<DashboardFundraisers />} />
+            <Route path="create-fund" element={<CreateFund />} />
             <Route path="donations" element={<DashboardDonations />} />
             <Route path="comments" element={<DashboardComments />} />
             <Route path="settings" element={<DashboardSettings />} />
@@ -42,6 +45,7 @@ function App() {
           <Route path="/admins" element={<AdminsPage />} />
           <Route path="/blogs" element={<BlogsPage />} />
           <Route path="/funds" element={<FundsPage />} />
+          <Route path="/funds/:id" element={<FundDetails />} />
           <Route path="/donations" element={<DonationsPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/comments" element={<CommentsPage />} />

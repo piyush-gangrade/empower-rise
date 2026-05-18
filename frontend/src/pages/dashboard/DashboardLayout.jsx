@@ -22,6 +22,9 @@ export default function DashboardLayout() {
           <NavLink to="fundraisers" className={linkClass}>
             My Fundraisers
           </NavLink>
+          <NavLink to="create-fund" className={linkClass}>
+            Create Fundraiser
+          </NavLink>
           <NavLink to="donations" className={linkClass}>
             My Donations
           </NavLink>
