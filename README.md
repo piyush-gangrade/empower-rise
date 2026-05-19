@@ -88,7 +88,27 @@ The frontend runs on `http://localhost:5173`.
 Open the browser at:
 
 - `http://localhost:5173` for the frontend
-- API requests are proxied to `http://localhost:8080`
+- Backend API is available at `http://localhost:8080`
+
+## 🐳 Docker Setup
+
+After cloning the repository, run:
+
+```bash
+docker compose up --build
+```
+
+This will build and start:
+
+- PostgreSQL database
+- Spring Boot backend on `http://localhost:8080`
+- React frontend on `http://localhost:5173`
+
+To stop the stack:
+
+```bash
+docker compose down
+```
 
 ## 🔧 Developer Workflow
 

@@ -32,6 +32,16 @@ Production files are generated to `frontend/dist/`.
 - JWT tokens are stored in `localStorage` for authenticated users.
 - Admin routes are protected by role-based checks in the frontend.
 
+## Docker
+
+The repository supports full Docker deployment from the project root:
+
+```bash
+docker compose up --build
+```
+
+This starts PostgreSQL, the Spring Boot backend, and the frontend service.
+
 ## Available Scripts
 
 - `npm run dev` — start the developer server
