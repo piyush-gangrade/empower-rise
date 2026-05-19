@@ -18,7 +18,11 @@ public class UploadImage {
     private Cloudinary cloudinary;
 
     public UploadImage() {
-        Dotenv dotenv = Dotenv.load();
+        Dotenv dotenv = Dotenv.configure()
+        .directory("./backend") // Point this to wherever the hell your file actually is
+        .ignoreIfMalformed()
+        .ignoreIfMissing()      // Useful so your app doesn't crash in production if you use system env vars instead
+        .load();
         String cloudName = dotenv.get("CLOUDINARY_CLOUD_NAME");
         String apiKey = dotenv.get("CLOUDINARY_API_KEY");
         String apiSecret = dotenv.get("CLOUDINARY_API_SECRET");

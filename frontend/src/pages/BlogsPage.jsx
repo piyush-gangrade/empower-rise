@@ -19,7 +19,10 @@ export default function BlogsPage() {
       try {
         const res = await fetch('/api/category')
         const data = await res.json()
-        setCategories(data)
+
+        // Extract the actual array, and fallback to an empty array if it's undefined
+        // Adjust "data.data" to whatever your actual API payload structure is (e.g., data.categories)
+        setCategories(data?.data || [])
       } catch (err) {
         console.error(err)
       }
@@ -114,7 +117,7 @@ export default function BlogsPage() {
             >
               All categories
             </Button>
-            {categories.map((category) => (
+            {Array.isArray(categories) && categories.map((category) => (
               <Button
                 key={category.id}
                 variant={activeCategory === category.id.toString() ? 'default' : 'ghost'}
