@@ -18,6 +18,8 @@ import DonationSuccess from './pages/DonationSuccess.jsx'
 import UsersPage from './pages/UsersPage.jsx'
 import AdminsPage from './pages/AdminsPage.jsx'
 import BlogsPage from './pages/BlogsPage.jsx'
+import BlogDetails from './pages/BlogDetails.jsx'
+import BlogForm from './pages/BlogForm.jsx'
 import FundsPage from './pages/FundsPage.jsx'
 import DonationsPage from './pages/DonationsPage.jsx'
 import CategoriesPage from './pages/CategoriesPage.jsx'
@@ -46,6 +48,9 @@ function App() {
           <Route path="/users" element={<UsersPage />} />
           <Route path="/admins" element={<AdminsPage />} />
           <Route path="/blogs" element={<BlogsPage />} />
+          <Route path="/blogs/create" element={<BlogForm />} />
+          <Route path="/blogs/edit/:id" element={<BlogForm />} />
+          <Route path="/blogs/:id" element={<BlogDetails />} />
           <Route path="/funds" element={<FundsPage />} />
           <Route path="/funds/:id" element={<FundDetails />} />
           <Route path="/funds/:id/donate" element={<DonatePage />} />

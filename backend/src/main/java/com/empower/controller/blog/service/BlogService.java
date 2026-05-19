@@ -116,6 +116,12 @@ public class BlogService {
             blog.setName(data.getName());
         }
 
+        if (data.getCategoryId() != null) {
+            Category category = categoryRepository.findById(data.getCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found by id"));
+            blog.setCategory(category);
+        }
+
         if (data.getImages() != null && data.getImages().length > 0) {
             String[] uploadedImageUrls = new String[data.getImages().length];
             for (int i = 0; i < data.getImages().length; i++) {
