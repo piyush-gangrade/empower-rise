@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button.jsx'
 import { Card } from '../components/ui/card.jsx'
 import { Input } from '../components/ui/input.jsx'
+import { saveAdminSession } from '../utils/auth.js'
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('')
@@ -37,9 +38,11 @@ export default function AdminLoginPage() {
       if (!token) {
         throw new Error('No token returned from login')
       }
-      localStorage.setItem('adminToken', token)
-      localStorage.setItem('adminRole', 'Admin')
-      localStorage.setItem('adminUser', JSON.stringify(user))
+      saveAdminSession({
+        token,
+        user,
+        role: 'Admin',
+      })
       navigate('/admin')
     } catch (err) {
       setError(err.message)

@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button.jsx'
 import { Card } from '../components/ui/card.jsx'
 import { Input } from '../components/ui/input.jsx'
+import { saveAuthSession } from '../utils/auth.js'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -41,8 +42,11 @@ export default function LoginPage() {
       }
 
       const payload = data?.data || data
-      localStorage.setItem('authToken', payload.token)
-      localStorage.setItem('authUser', JSON.stringify(payload.user || {}))
+      saveAuthSession({
+        token: payload.token,
+        user: payload.user,
+        role: payload.role || 'User',
+      })
       navigate('/dashboard')
     } catch (err) {
       setError(err.message)

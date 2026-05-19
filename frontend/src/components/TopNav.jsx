@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { isAuthenticated, isAdminAuthenticated, logoutAuth, logoutAdmin } from '../utils/auth.js'
 
 const linkClass = ({ isActive }) =>
   isActive ? 'nav-link nav-link--active' : 'nav-link'
@@ -11,21 +12,18 @@ export default function TopNav() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    setAuthenticated(Boolean(localStorage.getItem('authToken')))
-    setAdminAuthenticated(Boolean(localStorage.getItem('adminToken')))
+    setAuthenticated(isAuthenticated())
+    setAdminAuthenticated(isAdminAuthenticated())
   }, [location.pathname])
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken')
-    localStorage.removeItem('authUser')
+    logoutAuth()
     setAuthenticated(false)
     navigate('/login')
   }
 
   const handleAdminLogout = () => {
-    localStorage.removeItem('adminToken')
-    localStorage.removeItem('adminUser')
-    localStorage.removeItem('adminRole')
+    logoutAdmin()
     setAdminAuthenticated(false)
     navigate('/admin-login')
   }

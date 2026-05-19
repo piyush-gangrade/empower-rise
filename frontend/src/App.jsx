@@ -1,6 +1,8 @@
 import { Routes, Route } from 'react-router-dom'
 import './App.css'
 import TopNav from './components/TopNav.jsx'
+import RequireAuth from './components/RequireAuth.jsx'
+import RequireAdmin from './components/RequireAdmin.jsx'
 import HomePage from './pages/HomePage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
@@ -42,7 +44,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/dashboard/*" element={<DashboardLayout />}>
+          <Route path="/dashboard/*" element={<RequireAuth><DashboardLayout /></RequireAuth>}>
             <Route index element={<DashboardProfile />} />
             <Route path="profile" element={<DashboardProfile />} />
             <Route path="fundraisers" element={<DashboardFundraisers />} />
@@ -52,7 +54,7 @@ function App() {
             <Route path="settings" element={<DashboardSettings />} />
           </Route>
           <Route path="/admin-login" element={<AdminLoginPage />} />
-          <Route path="/admin" element={<AdminDashboardLayout />}>
+          <Route path="/admin/*" element={<RequireAdmin><AdminDashboardLayout /></RequireAdmin>}>
             <Route index element={<AdminUsersPage />} />
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="campaigns" element={<AdminCampaignsPage />} />
