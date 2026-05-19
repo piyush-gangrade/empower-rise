@@ -5,6 +5,13 @@ import HomePage from './pages/HomePage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
 import AdminLoginPage from './pages/AdminLoginPage.jsx'
+import AdminDashboardLayout from './pages/admin/AdminDashboardLayout.jsx'
+import AdminUsersPage from './pages/admin/AdminUsersPage.jsx'
+import AdminCampaignsPage from './pages/admin/AdminCampaignsPage.jsx'
+import AdminCampaignEditPage from './pages/admin/AdminCampaignEditPage.jsx'
+import AdminDonationsPage from './pages/admin/AdminDonationsPage.jsx'
+import AdminBlogsPage from './pages/admin/AdminBlogsPage.jsx'
+import AdminCategoriesPage from './pages/admin/AdminCategoriesPage.jsx'
 import DashboardLayout from './pages/dashboard/DashboardLayout.jsx'
 import DashboardProfile from './pages/dashboard/DashboardProfile.jsx'
 import DashboardFundraisers from './pages/dashboard/DashboardFundraisers.jsx'
@@ -45,6 +52,17 @@ function App() {
             <Route path="settings" element={<DashboardSettings />} />
           </Route>
           <Route path="/admin-login" element={<AdminLoginPage />} />
+          <Route path="/admin" element={<AdminDashboardLayout />}>
+            <Route index element={<AdminUsersPage />} />
+            <Route path="users" element={<AdminUsersPage />} />
+            <Route path="campaigns" element={<AdminCampaignsPage />} />
+            <Route path="campaigns/edit/:id" element={<AdminCampaignEditPage />} />
+            <Route path="donations" element={<AdminDonationsPage />} />
+            <Route path="blogs" element={<AdminBlogsPage />} />
+            <Route path="blogs/create" element={<BlogForm redirectPath="/admin/blogs" />} />
+            <Route path="blogs/edit/:id" element={<BlogForm redirectPath="/admin/blogs" />} />
+            <Route path="categories" element={<AdminCategoriesPage />} />
+          </Route>
           <Route path="/users" element={<UsersPage />} />
           <Route path="/admins" element={<AdminsPage />} />
           <Route path="/blogs" element={<BlogsPage />} />

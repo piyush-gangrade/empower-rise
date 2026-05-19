@@ -6,11 +6,13 @@ const linkClass = ({ isActive }) =>
 
 export default function TopNav() {
   const [authenticated, setAuthenticated] = useState(false)
+  const [adminAuthenticated, setAdminAuthenticated] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
 
   useEffect(() => {
     setAuthenticated(Boolean(localStorage.getItem('authToken')))
+    setAdminAuthenticated(Boolean(localStorage.getItem('adminToken')))
   }, [location.pathname])
 
   const handleLogout = () => {
@@ -18,6 +20,14 @@ export default function TopNav() {
     localStorage.removeItem('authUser')
     setAuthenticated(false)
     navigate('/login')
+  }
+
+  const handleAdminLogout = () => {
+    localStorage.removeItem('adminToken')
+    localStorage.removeItem('adminUser')
+    localStorage.removeItem('adminRole')
+    setAdminAuthenticated(false)
+    navigate('/admin-login')
   }
 
   return (
@@ -34,7 +44,16 @@ export default function TopNav() {
           <NavLink to="/blogs" className={linkClass}>
             Blogs
           </NavLink>
-          {authenticated ? (
+          {adminAuthenticated ? (
+            <>
+              <NavLink to="/admin" className={linkClass}>
+                Admin Dashboard
+              </NavLink>
+              <button type="button" className="nav-link nav-link--button" onClick={handleAdminLogout}>
+                Logout
+              </button>
+            </>
+          ) : authenticated ? (
             <>
               <NavLink to="/dashboard" className={linkClass}>
                 Dashboard

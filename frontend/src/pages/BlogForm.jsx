@@ -4,7 +4,7 @@ import { Button } from '../components/ui/button.jsx'
 import { Card } from '../components/ui/card.jsx'
 import { Input } from '../components/ui/input.jsx'
 
-export default function BlogForm() {
+export default function BlogForm({ redirectPath = '/blogs' }) {
   const { id } = useParams()
   const editMode = Boolean(id)
   const navigate = useNavigate()
@@ -95,7 +95,7 @@ export default function BlogForm() {
       }
 
       setSuccess(editMode ? 'Blog updated successfully.' : 'Blog created successfully.')
-      navigate('/blogs')
+      navigate(redirectPath)
     } catch (err) {
       setError(err.message)
     } finally {
