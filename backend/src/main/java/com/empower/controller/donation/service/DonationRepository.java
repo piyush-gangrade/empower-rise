@@ -3,28 +3,23 @@ package com.empower.controller.donation.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
-import com.empower.controller.category.Category;
 import com.empower.controller.donation.Donation;
+import com.empower.controller.fund.Fund;
 import com.empower.controller.user.User;
 
+@Repository
 public interface DonationRepository extends JpaRepository<Donation, Long> {
-    
-    public Page<Donation> findAll(Pageable pageable);
 
-    public Page<Donation> findByCategory(Category category, Pageable pageable);
+    // Standard pagination for all donations
+    Page<Donation> findAll(Pageable pageable);
 
-    public Page<Donation> findByUser(User user, Pageable pageable);
+    // Find all donations made by a specific user
+    Page<Donation> findByUser(User user, Pageable pageable);
 
-    @Modifying
-    @Query("UPDATE Donation d SET d.donatedPeople = d.donatedPeople + 1 WHERE d.id = :donationId")
-    void incrementTotalVisits(@Param("donationId") Long donationId);
-
-    @Modifying
-    @Query("UPDATE Donation d SET d.collectedAmount = d.collectedAmount + :amount WHERE d.id = :donationId")
-    void incrementTotalDonation(@Param("donationId") Long donationId, @Param("amount") int amount);
+    // Find all donations made to a specific campaign (Fund)
+    // THIS is the method your DonationService actually needs now!
+    Page<Donation> findByFund(Fund fund, Pageable pageable);
 
 }

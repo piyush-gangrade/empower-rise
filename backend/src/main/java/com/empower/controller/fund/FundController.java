@@ -36,6 +36,7 @@ public class FundController {
             Fund fund = fundService.createFund(data);
             return ResponseEntity.ok(new PositiveResponse("Blog Created Successfully", fund));
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(400).body(new NegativeResponse(e.getMessage()));
         }
     }

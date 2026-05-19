@@ -1,8 +1,5 @@
 package com.empower.controller.donation.service;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,147 +8,118 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.empower.controller.donation.Donation;
 import com.empower.controller.donation.dto.CreateDonationDto;
-import com.empower.controller.donation.dto.UpdateDonationDto;
-import com.empower.controller.category.Category;
-import com.empower.controller.category.service.CategoryRepository;
+import com.empower.controller.fund.Fund;
+import com.empower.controller.fund.service.FundRepository; // You will need to import your actual FundRepository
+import com.empower.controller.user.User;
+import com.empower.controller.user.service.UserRepository; // And your UserRepository
+import com.empower.enums.StatusEnum;
 import com.empower.exceptions.ResourceNotFoundException;
-import com.empower.exceptions.ValidationException;
-import com.empower.utils.cloudinary.UploadImage;
 
 @Service
 public class DonationService {
+
     @Autowired
     private DonationRepository donationRepository;
-    
-    @Autowired
-    private CategoryRepository categoryRepository;
 
     @Autowired
-    private UploadImage uploadImage;
+    private FundRepository fundRepository;
 
-    // Create or Update Donation
-    public Donation createOrUpdateDonation(CreateDonationDto data) {
-        try {
-            MultipartFile images[] = data.getImages();
+    @Autowired
+    private UserRepository userRepository;
 
-            Category category = categoryRepository.findById(data.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("Category not found by id"));
+    // Create Donation - Marked Transactional so if updating the Fund fails, the donation rolls back
+    @Transactional
+    public Donation createDonation(CreateDonationDto data) {
 
-            Donation donation = new Donation();
+        // 1. Find the campaign they are trying to donate to
+        Fund fund = fundRepository.findById(data.getFundId())
+            .orElseThrow(() -> new ResourceNotFoundException("The specified Fund does not exist"));
 
-            donation.setTitle(data.getTitle());
-            donation.setAmount(data.getAmount());
-            donation.setCategory(category);
-            donation.setDescription(data.getDescription());
-            donation.setDayLeft(data.getDayLeft());
-            
+        // 2. Build the new Donation record
+        Donation donation = new Donation();
+        donation.setAmount(data.getAmount());
+        donation.setDonorName(data.getDonorName());
+        donation.setMessage(data.getMessage());
+        donation.setAnonymous(data.getAnonymous() != null ? data.getAnonymous() : false);
+        donation.setFund(fund);
+        donation.setStatus(StatusEnum.SUCCESSFUL); // Assuming immediate success for now
 
-            if (images != null && images.length > 0) {
-                String[] uploadedImageUrls = new String[images.length];
-                for (int i = 0; i < images.length; i++) {
-                    File convFile = convertMultiPartToFile(images[i]);
-                    Map<String, Object> uploadResult = uploadImage.uploadImage(convFile.getAbsolutePath());
-                    uploadedImageUrls[i] = (String) uploadResult.get("url");
-                    convFile.delete();
-                }
-                donation.setImages(uploadedImageUrls);
-            }
-
-            return donationRepository.save(donation);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+        // 3. Optional: Link the logged-in user if an ID was passed from the frontend
+        if (data.getUserId() != null) {
+            User user = userRepository.findById(data.getUserId()).orElse(null);
+            donation.setUser(user);
         }
+
+        // 4. Update the parent Fund's statistics
+        // (Assuming collectedAmount is an int or double in your Fund entity. Adjust type casting if necessary)
+        int currentAmount = fund.getCollectedAmount();
+fund.setCollectedAmount((int) (currentAmount + data.getAmount()));
+
+        int currentDonors = fund.getDonatedPeople();
+        fund.setDonatedPeople(currentDonors + 1);
+
+        // 5. Save everything
+        fundRepository.save(fund);
+        return donationRepository.save(donation);
     }
 
     // Get Donation by ID
     public Donation getDonationById(Long id) {
-        return donationRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Resource not found by id"));
+        return donationRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Donation not found"));
     }
 
-    // Get All Donations
-    public Map<String, Object> getAllProject(int page, int limit){
-        Pageable pageable = PageRequest.of(page-1, limit);
-        Page<Donation> projectList = donationRepository.findAll(pageable);
+    // Get All Donations (Global Admin view)
+    public Map<String, Object> getAllDonations(int page, int limit) {
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Donation> donationPage = donationRepository.findAll(pageable);
 
-        Map<String, Object> list =  new HashMap<>();
-        list.put("totalDoc",projectList.getTotalElements());
-        list.put("totalPage", projectList.getTotalPages());
-        list.put("data", projectList.getContent());
+        Map<String, Object> result = new HashMap<>();
+        result.put("totalDoc", donationPage.getTotalElements());
+        result.put("totalPage", donationPage.getTotalPages());
+        result.put("data", donationPage.getContent());
 
-        return list;
+        return result;
     }
 
-    // Get Donation by Category
-    public Map<String, Object> getDonationByCategory(Long categoryId, int page, int limit) {
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found by id"));
+    // Get Donations for a specific Fund (To show on the Fund Details page)
+    public Map<String, Object> getDonationsByFund(Long fundId, int page, int limit) {
+        Fund fund = fundRepository.findById(fundId)
+            .orElseThrow(() -> new ResourceNotFoundException("Fund not found"));
 
         Pageable pageable = PageRequest.of(page - 1, limit);
-        Page<Donation> projectList = donationRepository.findByCategory(category, pageable);
 
-        Map<String, Object> list = new HashMap<>();
-        list.put("totalDoc", projectList.getTotalElements());
-        list.put("totalPage", projectList.getTotalPages());
-        list.put("data", projectList.getContent());
+        // Note: You will need to add this method to your DonationRepository:
+        // Page<Donation> findByFund(Fund fund, Pageable pageable);
+        Page<Donation> donationPage = donationRepository.findByFund(fund, pageable);
 
-        return list;
+        Map<String, Object> result = new HashMap<>();
+        result.put("totalDoc", donationPage.getTotalElements());
+        result.put("totalPage", donationPage.getTotalPages());
+        result.put("data", donationPage.getContent());
+
+        return result;
     }
 
-    // Update Donation Service
-    public Donation updateDonation(Long id, UpdateDonationDto data) {
-        try {
-            Donation Donation = donationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Donation not found by id"));
-
-        if (data.getTitle() != null) {
-            Donation.setTitle(data.getTitle());
-        }
-
-        if (data.getDescription() != null) {
-            Donation.setDescription(data.getDescription());
-        }
-
-        if (data.getImages() != null && data.getImages().length > 0) {
-            String[] uploadedImageUrls = new String[data.getImages().length];
-            for (int i = 0; i < data.getImages().length; i++) {
-                File convFile = convertMultiPartToFile(data.getImages()[i]);
-                Map<String, Object> uploadResult = uploadImage.uploadImage(convFile.getAbsolutePath());
-                uploadedImageUrls[i] = (String) uploadResult.get("url");
-                convFile.delete();
-            }
-            Donation.setImages(uploadedImageUrls);
-        }
-        
-        donationRepository.save(Donation);
-        return Donation;
-        
-        } catch (Exception e) {
-            throw new ValidationException(e.getMessage());
-        }
-
-    }
-
-    // Delete Donation by ID
+    // Delete Donation Service
+    @Transactional
     public boolean deleteDonation(Long id) {
-        if (donationRepository.existsById(id)) {
+        Donation donation = donationRepository.findById(id).orElse(null);
+        if (donation != null) {
+            // Optional: If you delete a donation, you usually want to subtract that amount from the Fund
+            Fund fund = donation.getFund();
+            if (fund != null && donation.getStatus() == StatusEnum.SUCCESSFUL) {
+                fund.setCollectedAmount((int) (fund.getCollectedAmount() - donation.getAmount()));
+                fund.setDonatedPeople(Math.max(0, fund.getDonatedPeople() - 1));
+                fundRepository.save(fund);
+            }
             donationRepository.deleteById(id);
             return true;
         }
         return false;
     }
-
-    // Convert MultipartFile to File
-    private File convertMultiPartToFile(MultipartFile file) throws IOException {
-        File convFile = new File(file.getOriginalFilename());
-        FileOutputStream fos = new FileOutputStream(convFile);
-        fos.write(file.getBytes());
-        fos.close();
-        return convFile;
-    }
-
 }

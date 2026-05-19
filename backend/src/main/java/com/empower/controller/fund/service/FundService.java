@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.empower.controller.user.User;
+import com.empower.controller.user.service.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +34,8 @@ public class FundService {
 
     @Autowired
     private UploadImage uploadImage;
+    @Autowired
+    private UserRepository userRepository;
 
     // Create or Update Fund
     public Fund createFund(CreateFundDto data) {
@@ -40,6 +44,8 @@ public class FundService {
 
             Category category = categoryRepository.findById(data.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("Category not found by id"));
 
+            User user = userRepository.findById(data.getUserId()).orElseThrow(() -> new ResourceNotFoundException("User not found by id"));
+
             Fund Fund = new Fund();
 
             Fund.setTitle(data.getTitle());
@@ -47,6 +53,8 @@ public class FundService {
             Fund.setCategory(category);
             Fund.setDescription(data.getDescription());
             Fund.setDayLeft(data.getDayLeft());
+            Fund.setLocation(data.getLocation());
+            Fund.setUser(user);
             
 
             if (images != null && images.length > 0) {

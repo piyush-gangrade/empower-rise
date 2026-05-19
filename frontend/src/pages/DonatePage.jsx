@@ -32,6 +32,7 @@ export default function DonatePage() {
     setError('')
     setLoading(true)
 
+    // 1. Go back to clean JSON payload
     const payload = {
       fundId: id,
       amount: Number(amount),
@@ -40,13 +41,11 @@ export default function DonatePage() {
       message,
     }
 
-    // Try calling backend; if it fails, fall back to a simulated success.
     try {
       const token = localStorage.getItem('authToken')
       const res = await fetch('/api/v1/donation/create', {
         method: 'POST',
         headers: {
-          // Backend expects multipart/form-data for donation create; send JSON and let fallback handle failure
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
@@ -54,22 +53,24 @@ export default function DonatePage() {
       })
 
       const json = await res.json()
-      if (res.ok) {
-        const returned = json?.data || json
-        const donationId = returned?.id || returned?.data?.id || returned?.id || returned?.data || Date.now()
-        navigate('/donation-success', { state: { id: donationId, amount: payload.amount } })
-        return
+
+      // 2. THE CRITICAL FIX: Actually throw an error if the backend rejects it!
+      if (!res.ok) {
+        throw new Error(json?.message || 'Backend rejected the donation');
       }
 
-      // If backend responds with non-OK, fall through to simulated success
-    } catch (err) {
-      // network or parse error -> fall back
-      console.warn('Backend donation call failed, falling back to simulated success', err)
-    }
+      // 3. If we get here, it ACTUALLY saved to the database
+      const returned = json?.data || json
+      const donationId = returned?.id || returned?.data?.id || returned?.id || returned?.data || Date.now()
+      navigate('/donation-success', { state: { id: donationId, amount: payload.amount } })
 
-    // Simulated success fallback
-    const fakeId = `DON-${Date.now()}`
-    navigate('/donation-success', { state: { id: fakeId, amount: payload.amount } })
+    } catch (err) {
+      console.error(err)
+      // Display the actual error on the screen so you know what's broken
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (!fund) return <div>Loading fund...</div>

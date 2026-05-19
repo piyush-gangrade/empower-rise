@@ -26,9 +26,14 @@ export default function FundDetails() {
 
       const cRes = await fetch(`/api/v1/comment/by-fund/${id}?page=1&limit=100`)
       const cJson = await cRes.json()
-      const cData = cJson?.data || cJson
-      // comment service may return nested data
-      const list = cData?.data || cData || []
+
+      // Hunt down the actual array, no matter how deeply nested Spring Boot buried it
+      let list = [];
+      if (Array.isArray(cJson)) list = cJson;
+      else if (Array.isArray(cJson?.data)) list = cJson.data;
+      else if (Array.isArray(cJson?.data?.data)) list = cJson.data.data;
+      else if (Array.isArray(cJson?.data?.content)) list = cJson.data.content; // Spring paginated responses usually use .content
+
       setComments(list)
     } catch (e) {
       console.error(e)
@@ -160,7 +165,7 @@ export default function FundDetails() {
             </form>
           </div>
 
-          {comments.length === 0 ? <p>No comments yet.</p> : (
+          {(!Array.isArray(comments) || comments.length === 0) ? <p>No comments yet.</p> : (
             <ul style={{ listStyle: 'none', padding: 0 }}>
               {comments.map((c) => (
                 <Comment

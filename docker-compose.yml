@@ -20,6 +20,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+    env_file:
+      - backend/.env
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/task_management
       SPRING_DATASOURCE_USERNAME: postgres

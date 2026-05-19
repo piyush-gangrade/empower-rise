@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Button } from '../../components/ui/button.jsx'
 import { Card } from '../../components/ui/card.jsx'
 
 const getAuthHeaders = () => {
@@ -25,7 +24,15 @@ export default function AdminDonationsPage() {
         if (!res.ok) {
           throw new Error(result.message || 'Failed to load donations')
         }
-        setDonations(result.data?.data || result.data?.list || result.data || [])
+
+        // Use the bulletproof array extractor we discussed earlier
+        let list = [];
+        if (Array.isArray(result)) list = result;
+        else if (Array.isArray(result?.data)) list = result.data;
+        else if (Array.isArray(result?.data?.data)) list = result.data.data;
+        else if (Array.isArray(result?.data?.list)) list = result.data.list;
+
+        setDonations(list)
       } catch (err) {
         setError(err.message)
       } finally {
@@ -39,7 +46,12 @@ export default function AdminDonationsPage() {
   const filteredDonations = useMemo(() => {
     if (!search) return donations
     return donations.filter((donation) => {
-      return [donation.name, donation.email, donation.phoneNumber, donation.message, donation.target]
+      // Map to the exact fields your new Spring Boot entity returns
+      const donor = donation.donorName || 'Anonymous';
+      const target = donation.fund?.title || '';
+      const msg = donation.message || '';
+
+      return [donor, msg, target]
         .filter(Boolean)
         .some((field) => field.toLowerCase().includes(search.toLowerCase()))
     })
@@ -81,12 +93,15 @@ export default function AdminDonationsPage() {
               </thead>
               <tbody>
                 {filteredDonations.map((donation) => (
-                  <tr key={donation.id || `${donation.name}-${donation.amount}-${donation.target}`}>
-                    <td>{donation.name || 'Anonymous'}</td>
-                    <td>{donation.amount ?? '—'}</td>
-                    <td>{donation.target || '—'}</td>
+                  <tr key={donation.id}>
+                    {/* Check the anonymous flag from the backend! */}
+                    <td>{donation.anonymous ? 'Anonymous' : (donation.donorName || 'Anonymous')}</td>
+                    <td>${(donation.amount || 0).toLocaleString()}</td>
+                    {/* Pull the title out of the nested fund object */}
+                    <td>{donation.fund?.title || '—'}</td>
                     <td>{donation.message || '—'}</td>
-                    <td>{donation.createdAt ? new Date(donation.createdAt).toLocaleDateString() : '-'}</td>
+                    {/* Map to donation.date instead of createdAt */}
+                    <td>{donation.date ? new Date(donation.date).toLocaleDateString() : '-'}</td>
                   </tr>
                 ))}
               </tbody>

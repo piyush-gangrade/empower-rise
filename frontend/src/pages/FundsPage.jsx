@@ -42,6 +42,7 @@ export default function FundsPage() {
       const json = await res.json()
       const payload = json?.data || json
       const data = payload?.data || payload
+      console.log(data)
       setTotalPages(payload?.totalPage || 1)
       setFunds(data || [])
     } catch (e) {

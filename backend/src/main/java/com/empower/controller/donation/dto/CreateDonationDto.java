@@ -1,40 +1,29 @@
 package com.empower.controller.donation.dto;
 
-import java.util.Date;
-
-import org.springframework.web.multipart.MultipartFile;
-
-import com.empower.controller.category.Category;
-import com.empower.controller.user.User;
-
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class CreateDonationDto {
-    @NotNull(message = "Donation title is required")
-    private String title;
 
-    @NotNull(message = "Amount is required")
-    private Long amount;
+    @NotNull(message = "Fund ID is required")
+    private Long fundId;
 
-    @NotNull(message = "Images are required")
-    private MultipartFile[] images;
+    @NotNull(message = "Donation amount is required")
+    @Min(value = 1, message = "Donation must be greater than 0")
+    private Double amount;
 
-    @NotNull(message = "Donation description is required")
-    private String description;
+    private String donorName;
 
-    @NotNull(message = "user is required")
+    private Boolean anonymous;
+
+    private String message;
+
+    // If the user is logged in, you can pass their ID to link it to their account
     private Long userId;
-
-    @NotNull(message = "Category is required")
-    private Long categoryId;
-
-    @NotNull(message = "Day left field is required")
-    private Date dayLeft;
-
-    @NotNull(message = "Location field is required")
-    private String location;
 }

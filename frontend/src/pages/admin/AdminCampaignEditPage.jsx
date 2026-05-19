@@ -45,7 +45,12 @@ export default function AdminCampaignEditPage() {
         setTitle(fund.title || fund.name || '')
         setDescription(fund.description || '')
         setAmount(fund.amount ?? fund.goal ?? '')
-        setDayLeft(fund.dayLeft ?? '')
+        if (fund.dayLeft) {
+          const formattedDate = new Date(fund.dayLeft).toISOString().split('T')[0];
+          setDayLeft(formattedDate);
+        } else {
+          setDayLeft('');
+        }
         setLocation(fund.location || '')
         setCategoryId(fund.category?.id || '')
       } catch (err) {
@@ -126,7 +131,8 @@ export default function AdminCampaignEditPage() {
             <label className="mb-2 block text-sm font-medium text-slate-200" htmlFor="dayLeft">
               Days left
             </label>
-            <Input id="dayLeft" value={dayLeft} onChange={(event) => setDayLeft(event.target.value)} />
+            {/* Added type="date" here */}
+            <Input id="dayLeft" type="date" value={dayLeft} onChange={(event) => setDayLeft(event.target.value)} />
           </div>
         </div>
         <div className="form-grid">

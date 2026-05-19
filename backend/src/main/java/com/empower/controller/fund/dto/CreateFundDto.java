@@ -2,6 +2,8 @@ package com.empower.controller.fund.dto;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.constraints.NotNull;
@@ -30,6 +32,7 @@ public class CreateFundDto {
     private Long categoryId;
 
     @NotNull(message = "Day left field is required")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dayLeft;
 
     @NotNull(message = "Location field is required")

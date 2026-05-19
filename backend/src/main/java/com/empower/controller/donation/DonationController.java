@@ -1,17 +1,8 @@
 package com.empower.controller.donation;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.empower.controller.donation.dto.CreateDonationDto;
 import com.empower.controller.donation.dto.UpdateDonationDto;
@@ -29,67 +20,61 @@ public class DonationController {
     @Autowired
     private DonationService donationService;
 
-    // Create or Update Blog
-    @PostMapping(path = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Response> createBlog(@ModelAttribute @Valid CreateDonationDto data) {
+    // Create Donation (Accepts JSON now, no multipart bullshit)
+    @PostMapping(path = "/create")
+    public ResponseEntity<Response> createDonation(@RequestBody @Valid CreateDonationDto data) {
         try {
-            Donation donation = donationService.createOrUpdateDonation(data);
-            return ResponseEntity.ok(new PositiveResponse("Blog Created Successfully", donation));
+            Donation donation = donationService.createDonation(data);
+            return ResponseEntity.ok(new PositiveResponse("Donation processed successfully", donation));
         } catch (Exception e) {
+            e.printStackTrace(); // Keep this so you aren't debugging blind
             return ResponseEntity.status(400).body(new NegativeResponse(e.getMessage()));
         }
     }
 
-    @PatchMapping(path = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Response> updateBlog(@PathVariable Long id, @ModelAttribute @Valid UpdateDonationDto data) {
-        try {
-            Donation donation = donationService.updateDonation(id, data);
-            return ResponseEntity.ok(new PositiveResponse("Blog updated successfully", donation));
-        } catch (Exception e) {
-            return ResponseEntity.status(400).body(new NegativeResponse(e.getMessage()));
-        }
-    }
-
-    // Get Blog by ID
+    // Get Donation by ID
     @GetMapping("/{id}")
-    public ResponseEntity<Response> getBlogById(@PathVariable Long id) {
+    public ResponseEntity<Response> getDonationById(@PathVariable Long id) {
         try {
             Donation donation = donationService.getDonationById(id);
-            return ResponseEntity.ok(new PositiveResponse("Blog found by id", donation));
+            return ResponseEntity.ok(new PositiveResponse("Donation found", donation));
         } catch (Exception e) {
             return ResponseEntity.status(400).body(new NegativeResponse(e.getMessage()));
         }
     }
 
-    // Get All Blogs
+    // Get All Donations (Paginated)
     @GetMapping("/all")
-    public ResponseEntity<Response> getAllBlogs(@RequestParam(defaultValue = "1") int page,
+    public ResponseEntity<Response> getAllDonations(
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit) {
         try {
             return ResponseEntity.status(200)
-                    .body(new PositiveResponse("Blog list", donationService.getAllProject(page, limit)));
+                    .body(new PositiveResponse("Donation list", donationService.getAllDonations(page, limit)));
         } catch (Exception e) {
             return ResponseEntity.status(400).body(new NegativeResponse(e.getMessage()));
         }
     }
-    
-    // Get All Blogs
-    @GetMapping("/all-by-category/{categoryId}")
-    public ResponseEntity<Response> getAllBlogsByCategory(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int limit, @PathVariable("categoryId") Long categoryId) {
+
+    // Get All Donations for a Specific Fund
+    @GetMapping("/by-fund/{fundId}")
+    public ResponseEntity<Response> getDonationsByFund(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int limit,
+            @PathVariable("fundId") Long fundId) {
         try {
-            return ResponseEntity.status(200).body(new PositiveResponse( "Blog list", donationService.getDonationByCategory(categoryId, page, limit)));
+            return ResponseEntity.status(200).body(new PositiveResponse("Fund donations", donationService.getDonationsByFund(fundId, page, limit)));
         } catch (Exception e) {
             return ResponseEntity.status(400).body(new NegativeResponse(e.getMessage()));
         }
     }
 
-    // Delete Blog by ID
+    // Delete Donation by ID
     @DeleteMapping("/{id}")
-    public ResponseEntity<Response> deleteBlog(@PathVariable Long id) {
+    public ResponseEntity<Response> deleteDonation(@PathVariable Long id) {
         if (donationService.deleteDonation(id)) {
-            return ResponseEntity.status(200).body(new PositiveResponse("Successfully deleted", null));
+            return ResponseEntity.status(200).body(new PositiveResponse("Successfully deleted donation", null));
         }
-        return ResponseEntity.status(400).body(new NegativeResponse("Resource not found"));
+        return ResponseEntity.status(400).body(new NegativeResponse("Donation not found"));
     }
-
 }
