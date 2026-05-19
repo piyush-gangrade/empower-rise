@@ -1,206 +1,147 @@
 # Empower Rise - Fundraising Platform
 
-A full-stack fundraising and donation platform built with Spring Boot (backend) and React (frontend).
+A full-stack fundraising and donation platform built with Spring Boot (backend) and React + Vite (frontend).
 
 ## 📁 Project Structure
 
 ```
 Empower_rise/
-├── backend/                # Spring Boot Java backend
-│   ├── mvnw               # Maven wrapper executable
-│   ├── mvnw.cmd          # Maven wrapper batch file (Windows)
-│   ├── pom.xml           # Maven dependencies and configuration
-│   ├── .mvn/             # Maven configuration
-│   └── src/              # Java source code
-│       ├── main/
-│       │   ├── java/com/empower/
-│       │   │   ├── EmpowerApplication.java
-│       │   │   ├── annotation/
-│       │   │   ├── aspect/
-│       │   │   ├── config/
-│       │   │   ├── controller/
-│       │   │   ├── dto/
-│       │   │   ├── enums/
-│       │   │   ├── exceptions/
-│       │   │   ├── response/
-│       │   │   └── utils/
-│       │   └── resources/application.properties
-│       └── test/
-│
 ├── frontend/              # React + Vite frontend
 │   ├── src/
 │   │   ├── pages/         # Page components
-│   │   ├── components/    # Reusable components
-│   │   ├── lib/           # Utilities
+│   │   ├── components/    # Reusable UI components
+│   │   ├── utils/         # Auth and API helpers
 │   │   ├── App.jsx
 │   │   ├── App.css
 │   │   └── main.jsx
 │   ├── public/
 │   ├── index.html
-│   ├── vite.config.js     # Vite configuration (includes API proxy)
+│   ├── vite.config.js     # Vite configuration (API proxy)
 │   ├── package.json
 │   └── tailwind.config.js
-│
-└── PROJECT_STRUCTURE.md   # Detailed structure documentation
+├── mvnw                    # Maven wrapper executable
+├── mvnw.cmd                # Maven wrapper batch file (Windows)
+├── pom.xml                 # Backend Maven configuration
+├── .mvn/                   # Maven configuration files
+└── src/                    # Backend Java source code
+    ├── main/
+    │   ├── java/com/empower/
+    │   │   ├── EmpowerApplication.java
+    │   │   ├── annotation/
+    │   │   ├── aspect/
+    │   │   ├── config/
+    │   │   ├── controller/
+    │   │   ├── dto/
+    │   │   ├── enums/
+    │   │   ├── exceptions/
+    │   │   ├── response/
+    │   │   └── utils/
+    │   └── resources/application.properties
+    └── test/
 ```
 
-## 🚀 Quick Start
+## ✅ Requirements
 
-### Prerequisites
+- **Java 17+**
+- **Node.js 18+**
+- **npm** (comes with Node.js)
+- **Maven** (not required globally because the project includes `mvnw` / `mvnw.cmd`)
+- **PostgreSQL** (local database server)
 
-- **Java 17+** (for backend)
-- **Node.js 18+** (for frontend)
-- **Maven** (bundled with mvnw in backend folder)
+## 🗄️ Database Configuration
 
-### Backend Setup
+The backend is configured to use PostgreSQL with the following default connection in `backend/src/main/resources/application.properties`:
+
+- URL: `jdbc:postgresql://localhost:5432/task_management`
+- Username: `postgres`
+- Password: `root`
+- Driver: `org.postgresql.Driver`
+- Hibernate DDL: `spring.jpa.hibernate.ddl-auto=update`
+
+If you want to use a different database or credentials, update `backend/src/main/resources/application.properties` accordingly.
+
+## 🚀 Setup Instructions
+
+### 1. Backend Setup
 
 ```bash
-# Navigate to backend
-cd backend
-
-# Build with Maven
+# From the repository root
+# On Windows use mvnw.cmd, on macOS/Linux use ./mvnw
 ./mvnw clean install
-
-# Run the application (runs on port 8080)
 ./mvnw spring-boot:run
 ```
 
-The backend will be available at `http://localhost:8080`
+The backend runs on `http://localhost:8080` by default.
 
-### Frontend Setup
+### 2. Frontend Setup
 
 ```bash
-# Navigate to frontend
 cd frontend
-
-# Install dependencies
 npm install
-
-# Run development server (runs on port 5173)
 npm run dev
-
-# Or build for production
-npm run build
 ```
 
-The frontend will be available at `http://localhost:5173`
+The frontend runs on `http://localhost:5173`.
 
-## 🔗 API Integration
+### 3. Access the App
 
-The frontend Vite dev server is configured with a proxy:
-- All requests to `/api/*` are forwarded to `http://localhost:8080/api/*`
-- This is configured in `frontend/vite.config.js`
+Open the browser at:
 
-## 📝 Features
+- `http://localhost:5173` for the frontend
+- API requests are proxied to `http://localhost:8080`
 
-### User Management
-- User registration with validation
-- User login with JWT authentication
-- User dashboard and profile management
+## 🔧 Developer Workflow
 
-### Fundraising
-- Browse active fundraising campaigns
-- Create and manage funds
-- Track fundraising progress
+### Running Backend + Frontend Together
 
-### Donations
-- Browse donation opportunities
-- Make donations to campaigns
-- View donation history
-
-### Content
-- Blog posts and articles
-- News updates
-- Category-based organization
-
-## 🔐 Authentication
-
-- JWT-based authentication
-- Tokens stored in browser localStorage
-- Automatic token refresh and expiration handling
-- Protected routes that require authentication
-
-## 📚 API Endpoints
-
-### User Endpoints
-- `POST /api/v1/User` - Register new user
-- `POST /api/v1/User/login` - User login
-- `GET /api/v1/User` - List all users (paginated)
-- `GET /api/v1/User/{id}` - Get user by ID
-- `PATCH /api/v1/User/{id}` - Update user
-- `PATCH /api/v1/User/{id}/update-password` - Change password
-
-### Fund Endpoints
-- `POST /api/v1/Fund` - Create new fund
-- `GET /api/v1/Fund` - List all funds
-- `GET /api/v1/Fund/{id}` - Get fund details
-
-### Donation Endpoints
-- `POST /api/v1/Donation` - Create donation
-- `GET /api/v1/Donation` - List donations
-
-### Blog Endpoints
-- `POST /api/v1/Blog` - Create blog post
-- `GET /api/v1/Blog` - List all blogs
-- `GET /api/v1/Blog/{id}` - Get blog details
-
-## 🛠️ Development
-
-### Running Both Services
-
-**Terminal 1 - Backend:**
+Terminal 1:
 ```bash
-cd backend
 ./mvnw spring-boot:run
 ```
 
-**Terminal 2 - Frontend:**
+Terminal 2:
 ```bash
 cd frontend
 npm run dev
 ```
-
-Then open `http://localhost:5173` in your browser.
 
 ### Building for Production
 
-**Backend:**
+Backend:
 ```bash
-cd backend
 ./mvnw clean package
-# JAR file will be in backend/target/
 ```
 
-**Frontend:**
+Frontend:
 ```bash
 cd frontend
 npm run build
-# Production files will be in frontend/dist/
 ```
 
-## 📋 Tech Stack
+## 🔗 Frontend Proxy Configuration
 
-**Backend:**
-- Spring Boot 3.x
-- Spring Security
-- JWT Authentication
-- Maven
-- Java 17+
+The Vite development server forwards `/api/*` requests to the backend. This proxy is configured in `frontend/vite.config.js`.
 
-**Frontend:**
-- React 18+
-- Vite
-- React Router
-- Tailwind CSS
-- Axios (via fetch)
+## 🔐 Authentication Flow
 
-## 📝 Notes
+- Uses **JWT-based authentication**
+- User login is via `POST /api/v1/User/login`
+- Admin login is via `POST /api/v1/admin/login`
+- Tokens are stored in `localStorage`
+- Protected routes redirect to login when unauthorized
 
-- The backend and frontend are now in separate folders for better organization
-- Each has its own build configuration and dependencies
-- The proxy configuration in `vite.config.js` handles API routing during development
-- For production, the frontend build should be served separately or integrated into the backend
+## 🧩 Main Features
 
-## 📄 Documentation
+- User registration and login
+- Admin login and role-based admin portal
+- Fundraising campaign management
+- Donation processing and history
+- Blog creation, listing, and viewing
+- Category filtering and admin category management
 
-See `PROJECT_STRUCTURE.md` for detailed information about the project organization.
+## 📌 Important Notes
+
+- Backend source is at the repository root
+- Frontend source is inside `frontend/`
+- The app uses localStorage for session data and JWT tokens
+- Make sure the backend is running before using the frontend dev server

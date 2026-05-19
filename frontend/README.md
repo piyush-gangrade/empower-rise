@@ -1,16 +1,40 @@
-# React + Vite
+# Empower Rise Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This frontend is built with **React** and **Vite** and connects to a Spring Boot backend.
 
-Currently, two official plugins are available:
+## Requirements
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Node.js 18+**
+- **npm**
+- Backend service running on `http://localhost:8080`
 
-## React Compiler
+## Setup
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-## Expanding the ESLint configuration
+The app will start at `http://localhost:5173`.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Build
+
+```bash
+npm run build
+```
+
+Production files are generated to `frontend/dist/`.
+
+## Development Notes
+
+- API requests to `/api/*` are proxied to the backend by Vite.
+- JWT tokens are stored in `localStorage` for authenticated users.
+- Admin routes are protected by role-based checks in the frontend.
+
+## Available Scripts
+
+- `npm run dev` — start the developer server
+- `npm run build` — build the production app
+- `npm run preview` — serve the production build locally
+- `npm run lint` — run ESLint
